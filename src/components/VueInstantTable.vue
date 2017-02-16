@@ -32,7 +32,7 @@
       </tr>
       </tbody>
     </table>
-    <div class="row">
+    <div class="row" :class="paginationClass">
       <div class="col-xs-3 text-left">
         <div class="btn-group">
           <button type="button" v-for="count in tableOptions.pagination.itemsPerPageList" class="btn btn-default"
@@ -119,6 +119,7 @@
       options: Object,
       rowActions: Object,
       tableClass: String,
+      paginationClass: String
     },
     data: function () {
       if (!this.value) {
