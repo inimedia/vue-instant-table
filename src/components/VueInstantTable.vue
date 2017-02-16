@@ -1,6 +1,7 @@
 <template>
   <div>
-    <table class="table table-hover table-responsive" :class="tableClass">
+    <table class="table table-hover table-responsive"
+           :class="tableClass">
       <thead>
       <tr>
         <th v-for="(column, key) in columns" @click="sortBy(key)" class="sortable"
@@ -15,8 +16,15 @@
       </thead>
       <tbody>
       <tr v-for="(row, index) in filteredData">
-        <td v-for="(column, key) in columns"
-            v-html="customRawValue(row, column, key)">
+        <td v-for="(column, key) in columns">
+          <span v-if="!isColumnClickable(column)" v-html="customRawValue(row, key, index, column)"></span>
+          <a v-if="isColumnClickable(column)"
+             :href="clickableColumnHref(column)"
+             :target="clickableColumnTarget(column)"
+             :class="clickableColumnClass(row, key, index, column)"
+             @click.prevent="clickableColumnHandler(row, key, index, column)">
+            {{ customRawValue(row, key, index, column) }}
+          </a>
           <!-- v-html="customColumn(row[column.key], column.filter)"> -->
         </td>
         <td v-if="isRowActionsValid()">
@@ -24,7 +32,7 @@
                           v-if="actionIsShown(action, row)">
                         <span> </span>
                         <button type="button" :class="action.class"
-                                @click="doActions(name, row, index)">
+                                @click="doActions(name, row, index, column)">
                             <span :class="action.icon"></span> {{ action.label }}
                         </button>
                     </span>
@@ -109,9 +117,9 @@
   });
 
   export default {
-    mounted: function () {
+//    mounted: function () {
 //             console.log('IniTable ready.', this.value.length, this.value);
-    },
+//    },
     props: {
       columns: Object,
       value: Array,
@@ -260,15 +268,58 @@
         this.activePageNumber = page;
         this.pivotPageNumber = this.activePageNumber
       },
-      doActions: function (action, rowData, index) {
+      doActions: function (action, rowData, index, columnSpec) {
 //                console.log('row-' + action, rowData, index);
-        this.$emit('row-' + action, cloneDeep(rowData), index)
+        this.$emit('row-' + action, cloneDeep(rowData), index, columnSpec)
       },
-      customRawValue: function (rowData, columnSpec, key) {
+      isColumnClickable: function (columnSpec) {
+        return columnSpec.clickable ? true : false;
+      },
+      clickableColumnHref: function (columnSpec) {
+        return (columnSpec.clickable && columnSpec.clickable.href) ? columnSpec.clickable.href : '';
+      },
+      clickableColumnTarget: function (columnSpec) {
+        return (columnSpec.clickable && columnSpec.clickable.target) ? columnSpec.clickable.target : '';
+      },
+      clickableColumnClass: function (rowData, key, index, columnSpec) {
+        if (columnSpec.clickable && columnSpec.clickable.class) {
+          if (typeof columnSpec.clickable.class === 'string') {
+            return columnSpec.clickable.class;
+          }
+          else if (isFunction(columnSpec.clickable.class)) {
+//            console.log(rowData, key, index, columnSpec);
+            var val = get(rowData, key, '?');
+            return columnSpec.clickable.class(val, rowData, key, index, columnSpec);
+          }
+        }
+        return '';
+      },
+      clickableColumnHandler: function (rowData, key, index, columnSpec) {
+        var val = get(rowData, key, '?');
+        if (columnSpec.clickable && columnSpec.clickable.handler) {
+          columnSpec.clickable.handler(
+            val,
+            Object.assign({}, rowData),
+            key,
+            index,
+            Object.assign({}, columnSpec)
+          );
+        }
+        else {
+          this.$emit('cell-clicked',
+            val,
+            Object.assign({}, rowData),
+            key,
+            index,
+            Object.assign({}, columnSpec)
+          )
+        }
+      },
+      customRawValue: function (rowData, key, index, columnSpec) {
         var val = get(rowData, key, '?');
 
         if (columnSpec.customValue && isFunction(columnSpec.customValue)) {
-          val = columnSpec.customValue(val, rowData);
+          val = columnSpec.customValue(val, rowData, key, index, columnSpec);
         }
 
         if (columnSpec.customFilter && isFunction(columnSpec.customFilter)) {
@@ -284,6 +335,10 @@
               break;
           }
         }
+
+        if (columnSpec.customRenderer && isFunction(columnSpec.customRenderer)) {
+          val = columnSpec.customRenderer(val)
+        }
         return val
       },
       actionIsShown: function (action, rowData) {
@@ -298,7 +353,6 @@
         }
       },
       isRowActionsValid: function () {
-//                console.log('isRowActionsValid', this.rowActions, Object.keys(this.rowActions));
         return (Object.keys(this.rowActions).length > 0)
       }
     },
