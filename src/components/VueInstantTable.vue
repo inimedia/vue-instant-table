@@ -1,6 +1,6 @@
 <template>
   <div>
-    <table class="table table-hover table-responsive">
+    <table class="table table-hover table-responsive" :class="tableClass">
       <thead>
       <tr>
         <th v-for="(column, key) in columns" @click="sortBy(key)" class="sortable"
@@ -117,7 +117,8 @@
       value: Array,
       filter: String,
       options: Object,
-      rowActions: Object
+      rowActions: Object,
+      tableClass: String,
     },
     data: function () {
       if (!this.value) {
