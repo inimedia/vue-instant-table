@@ -32,7 +32,7 @@
                           v-if="actionIsShown(action, row)">
                         <span> </span>
                         <button type="button" :class="action.class"
-                                @click="doActions(name, row, index, column)">
+                                @click="doActions(name, row, index)">
                             <span :class="action.icon"></span> {{ action.label }}
                         </button>
                     </span>
@@ -268,9 +268,8 @@
         this.activePageNumber = page;
         this.pivotPageNumber = this.activePageNumber
       },
-      doActions: function (action, rowData, index, columnSpec) {
-//                console.log('row-' + action, rowData, index);
-        this.$emit('row-' + action, cloneDeep(rowData), index, columnSpec)
+      doActions: function (action, rowData, index) {
+        this.$emit('row-' + action, cloneDeep(rowData), index)
       },
       isColumnClickable: function (columnSpec) {
         return columnSpec.clickable ? true : false;
