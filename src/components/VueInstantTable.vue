@@ -88,9 +88,12 @@
   Vue.filter('json', function (value) {
     return JSON.stringify(value);
   });
-  Vue.filter('date', function (value) {
+  Vue.filter('date', function (value, format) {
     if (value === null)
       return '-';
+    if (format) {
+      return moment(value).format(format);
+    }
     return moment(value).format('DD MMMM YYYY HH:mm:ss');
   });
   Number.prototype.formatMoney = function (c, d, t) {
@@ -325,12 +328,13 @@
           val = columnSpec.customFilter(val)
         }
         else if (columnSpec.filter) {
-          switch (columnSpec.filter) {
+          const filterSpec = columnSpec.filter.split(':');
+          switch (filterSpec[0]) {
             case 'currency':
-              val = this.$options.filters.currency(val);
+              val = this.$options.filters.currency(val, filterSpec[1]);
               break;
             case 'date':
-              val = this.$options.filters.date(val);
+              val = this.$options.filters.date(val, filterSpec[1]);
               break;
           }
         }
