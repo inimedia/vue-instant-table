@@ -1,6 +1,6 @@
 {
   "name": "vue-instant-table",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Instant table generator with awesome Vue ",
   "author": "Adhe Widianjaya <adwidianjaya@gmail.com>",
   "main": "index.js",

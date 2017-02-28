@@ -290,14 +290,14 @@
           }
           else if (isFunction(columnSpec.clickable.class)) {
 //            console.log(rowData, key, index, columnSpec);
-            var val = get(rowData, key, '?');
+            var val = get(rowData, key, '-');
             return columnSpec.clickable.class(val, rowData, key, index, columnSpec);
           }
         }
         return '';
       },
       clickableColumnHandler: function (rowData, key, index, columnSpec) {
-        var val = get(rowData, key, '?');
+        var val = get(rowData, key, '-');
         if (columnSpec.clickable && columnSpec.clickable.handler) {
           columnSpec.clickable.handler(
             val,
@@ -318,7 +318,7 @@
         }
       },
       customRawValue: function (rowData, key, index, columnSpec) {
-        var val = get(rowData, key, '?');
+        var val = get(rowData, key, '-');
 
         if (columnSpec.customValue && isFunction(columnSpec.customValue)) {
           val = columnSpec.customValue(val, rowData, key, index, columnSpec);
