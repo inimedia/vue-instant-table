@@ -78,7 +78,7 @@
   </div>
   <!-- empty div -->
 </template>
-<script style="text/babel">
+<script>
   import {cloneDeep, get, isFunction} from 'lodash'
   import Vue from 'vue';
   import moment from 'moment';
@@ -202,6 +202,7 @@
         var begin = this.activePageNumber * this.itemsPerPage - this.itemsPerPage
         var end = begin + this.itemsPerPage;
         data = data.slice(begin, end);
+        this.$emit('filter', data)
         return data
       },
       totalPages: function () {
