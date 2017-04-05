@@ -6,7 +6,7 @@
       <tr>
         <th v-for="(column, key) in columns" @click="sortBy(key)" class="sortable"
             :class="{ active: sortKey == column.key}">
-          {{ column.label|capitalize }}
+          {{ column.label | capitalize }}
           <span class="fa" :class="sortOrders[key] > 0 ? 'fa-sort-up' : 'fa-sort-down'">
             </span>
         </th>
@@ -15,7 +15,7 @@
       </tr>
       </thead>
       <tbody>
-      <tr v-for="(row, index) in filteredData">
+      <tr v-for="(row, index) in visibleData">
         <td v-for="(column, key) in columns">
           <span v-if="!isColumnClickable(column)" v-html="customRawValue(row, key, index, column)"></span>
           <a v-if="isColumnClickable(column)"
@@ -70,8 +70,8 @@
       </div>
       <!-- page -->
       <div class="col-xs-3 text-right">
-        <p>Page <span>{{ activePageNumber }}</span> of <span>{{ totalPages }}</span>, of <span>{{ value.length }}</span>
-          entries</p>
+        <p>Hal <span>{{ activePageNumber }}</span> dari <span>{{ totalPages }}</span>, untuk <span>{{ filteredData.length }}</span>
+          data</p>
       </div>
     </div>
     <!-- row -- pagination -->
@@ -178,7 +178,6 @@
     computed: {
       filteredData: function () {
         var filter = this.filter && this.filter.toLowerCase();
-        // console.log('filter', filter);
         var sortKey = this.sortKey;
         var order = this.sortOrders[sortKey];
         var data = this.value;
@@ -199,18 +198,31 @@
           })
         }
 
-        var begin = this.activePageNumber * this.itemsPerPage - this.itemsPerPage
-        var end = begin + this.itemsPerPage;
-        data = data.slice(begin, end);
         this.$emit('filter', data)
         return data
       },
+      visibleData: function () {
+        var data = this.filteredData;
+        var begin = this.activePageNumber * this.itemsPerPage - this.itemsPerPage
+        var end = begin + this.itemsPerPage;
+        return data.slice(begin, end);
+      },
       totalPages: function () {
-        return parseInt(this.value.length / this.itemsPerPage) + (this.value.length % this.itemsPerPage !== 0 ? 1 : 0)
+        return parseInt(this.filteredData.length / this.itemsPerPage) + (this.filteredData.length % this.itemsPerPage !== 0 ? 1 : 0)
       },
       visiblePagesRange: function () {
         var range = [];
-        // var activePageNumber = this.activePageNumber;
+        var activePageNumber = this.activePageNumber;
+        var pivotPageNumber = this.pivotPageNumber;
+        var totalPages = this.totalPages;
+        if (totalPages > 5) {
+          totalPages = 5;
+        }
+        for (var i = (1 - pivotPageNumber); i <= (totalPages - pivotPageNumber); i++) {
+          range.splice(range.length, 0, activePageNumber + i);
+        }
+        return range;
+
         var activePageNumber = this.pivotPageNumber;
         var pageNum = activePageNumber - 4;
         if (pageNum <= 0) {
@@ -233,8 +245,13 @@
         this.sortOrders[column] = this.sortOrders[column] * -1;
       },
       gotoPage: function (page) {
+        for (var i = 0; i < this.visiblePagesRange.length; i++) {
+          if (this.visiblePagesRange[i] === page) {
+            this.pivotPageNumber = i+1;
+            break;
+          }
+        }
         this.activePageNumber = page;
-        // this.pivotPageNumber = this.activePageNumber
       },
       computeVisiblePagesRange: function (activePage) {
         var range = [];
@@ -257,20 +274,27 @@
         if (this.visiblePagesRange[0] <= 1) {
           return
         }
-        this.pivotPageNumber--
+        var page = this.activePageNumber - 1;
+        if (page < 1) {
+          page = 1;
+        }
+        this.activePageNumber = page;
       },
       remainingPagesRange: function () {
         if (this.visiblePagesRange[this.visiblePagesRange.length - 1] >= this.totalPages) {
           return
         }
-        this.pivotPageNumber++
+        var page = this.activePageNumber + 1;
+        if (page > this.totalPages) {
+          page = this.totalPages;
+        }
+        this.activePageNumber = page;
       },
       setItemsPerPage: function (count) {
         var indexToPreserve = this.activePageNumber * this.itemsPerPage - this.itemsPerPage
         this.itemsPerPage = count;
         var page = parseInt(indexToPreserve / this.itemsPerPage) + 1;
-        this.activePageNumber = page;
-        this.pivotPageNumber = this.activePageNumber
+        this.gotoPage(page);
       },
       doActions: function (action, rowData, index) {
         this.$emit('row-' + action, cloneDeep(rowData), index)
@@ -368,4 +392,8 @@
   }
 </script>
 <style>
+  .pagination > .active > span {
+    background-color: transparent !important;
+    font-weight: bolder;
+  }
 </style>
