@@ -15,7 +15,7 @@
       </tr>
       </thead>
       <tbody>
-      <tr v-for="(row, index) in visibleData">
+      <tr v-for="(row, index) in visibleData" :class="customRowClass(row, index)">
         <td v-for="(column, key) in columns">
           <span v-if="!isColumnClickable(column)" v-html="customRawValue(row, key, index, column)"></span>
           <a v-if="isColumnClickable(column)"
@@ -177,6 +177,7 @@
     },
     computed: {
       filteredData: function () {
+        var columnKey = Object.keys(this.columns);
         var filter = this.filter && this.filter.toLowerCase();
         var sortKey = this.sortKey;
         var order = this.sortOrders[sortKey];
@@ -184,9 +185,9 @@
 
         if (filter) {
           data = data.filter(function (row) {
-            return Object.keys(row).some(function (key) {
-              return String(row[key]).toLowerCase().indexOf(filter) > -1
-            })
+            return columnKey.some((key) => {
+              return String(get(row, key, '')).toLowerCase().indexOf(filter) > -1
+            });
           })
         }
 
@@ -341,6 +342,12 @@
             Object.assign({}, columnSpec)
           )
         }
+      },
+      customRowClass: function (rowData, index) {
+        if (this.tableOptions.customRowClass && isFunction(this.tableOptions.customRowClass)) {
+          return this.tableOptions.customRowClass(rowData, index);
+        }
+        return ''
       },
       customRawValue: function (rowData, key, index, columnSpec) {
         var val = get(rowData, key, '-');
