@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <table class="table table-hover table-responsive"
+  <div class="table-responsive">
+    <table class="table table-hover"
            :class="tableClass">
       <thead>
       <tr>
@@ -70,7 +70,7 @@
       </div>
       <!-- page -->
       <div class="col-xs-3 text-right">
-        <p>Hal <span>{{ activePageNumber }}</span> dari <span>{{ totalPages }}</span>, untuk <span>{{ filteredData.length }}</span>
+        <p>Page <span>{{ activePageNumber }}</span> of <span>{{ totalPages }}</span>, for <span>{{ filteredData.length }}</span>
           data</p>
       </div>
     </div>
