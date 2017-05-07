@@ -178,11 +178,11 @@
     },
     computed: {
       seekData: function () {
-        let key = '_id';
+        let rowKey = '_id';
         if (this.rowKey)
-          key = this.rowKey;
+          rowKey = this.rowKey;
         return this.value.map(item => {
-          return item[key];
+          return item[rowKey];
         });
       },
       filteredData: function () {
@@ -307,10 +307,10 @@
         this.gotoPage(page);
       },
       doActions: function (action, rowData, index) {
-        let key = '_id';
+        let rowKey = '_id';
         if (this.rowKey)
-          key = this.rowKey;
-        let globalIndex = this.seekData.indexOf(rowData[key]);
+          rowKey = this.rowKey;
+        let globalIndex = this.seekData.indexOf(rowData[rowKey]);
         this.$emit('row-' + action, cloneDeep(rowData), globalIndex)
       },
       isColumnClickable: function (columnSpec) {
@@ -347,10 +347,10 @@
           );
         }
         else {
-          let key = '_id';
+          let rowKey = '_id';
           if (this.rowKey)
-            key = this.rowKey;
-          let globalIndex = this.seekData.indexOf(rowData[key]);
+            rowKey = this.rowKey;
+          let globalIndex = this.seekData.indexOf(rowData[rowKey]);
 
           this.$emit('cell-clicked',
             val,
