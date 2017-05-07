@@ -181,7 +181,6 @@
         let key = '_id';
         if (this.rowKey)
           key = this.rowKey;
-        console.log('seekData', key);
         return this.value.map(item => {
           return item[key];
         });
