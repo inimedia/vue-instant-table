@@ -70,7 +70,7 @@
       </div>
       <!-- page -->
       <div class="col-xs-3 text-right">
-        <p>Page <span>{{ activePageNumber }}</span> of <span>{{ totalPages }}</span>, for <span>{{ filteredData.length }}</span>
+        <p>Hal <span>{{ activePageNumber }}</span> dari <span>{{ totalPages }}</span>, untuk <span>{{ filteredData.length }}</span>
           data</p>
       </div>
     </div>
@@ -130,7 +130,8 @@
       options: Object,
       rowActions: Object,
       tableClass: String,
-      paginationClass: String
+      paginationClass: String,
+      rowKey: String
     },
     data: function () {
       if (!this.value) {
@@ -176,6 +177,15 @@
       }
     },
     computed: {
+      seekData: function () {
+        let key = '_id';
+        if (this.rowKey)
+          key = this.rowKey;
+        console.log('seekData', key);
+        return this.value.map(item => {
+          return item[key];
+        });
+      },
       filteredData: function () {
         var columnKey = Object.keys(this.columns);
         var filter = this.filter && this.filter.toLowerCase();
@@ -298,7 +308,11 @@
         this.gotoPage(page);
       },
       doActions: function (action, rowData, index) {
-        this.$emit('row-' + action, cloneDeep(rowData), index)
+        let key = '_id';
+        if (this.rowKey)
+          key = this.rowKey;
+        let globalIndex = this.seekData.indexOf(rowData[key]);
+        this.$emit('row-' + action, cloneDeep(rowData), globalIndex)
       },
       isColumnClickable: function (columnSpec) {
         return columnSpec.clickable ? true : false;
@@ -334,11 +348,16 @@
           );
         }
         else {
+          let key = '_id';
+          if (this.rowKey)
+            key = this.rowKey;
+          let globalIndex = this.seekData.indexOf(rowData[key]);
+
           this.$emit('cell-clicked',
             val,
             Object.assign({}, rowData),
             key,
-            index,
+            globalIndex,
             Object.assign({}, columnSpec)
           )
         }
