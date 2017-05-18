@@ -118,6 +118,11 @@
       return value;
     }
   });
+  const randomString = (length, chars) => {
+    var result = '';
+    for (var i = length; i > 0; --i) result += chars[Math.round(Math.random() * (chars.length - 1))];
+    return result;
+  }
 
   export default {
 //    mounted: function () {
@@ -182,6 +187,8 @@
         if (this.rowKey)
           rowKey = this.rowKey;
         return this.value.map(item => {
+          if (!item[rowKey])
+            item[rowKey] = randomString(16, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
           return item[rowKey];
         });
       },
