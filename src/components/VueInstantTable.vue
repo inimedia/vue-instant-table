@@ -40,7 +40,7 @@
       </tr>
       </tbody>
     </table>
-    <div class="row" :class="paginationClass">
+    <div class="row" :class="paginationClass" v-if="tableOptions.pagination && tableOptions.pagination.visible">
       <div class="col-xs-3 text-left">
         <div class="btn-group">
           <button type="button" v-for="count in tableOptions.pagination.itemsPerPageList" class="btn btn-default"
@@ -157,15 +157,24 @@
         options = this.options;
         if (Object.is(this.options.pagination, undefined)) {
           options.pagination = {
-            itemsPerPageList: [10, 30, 50]
+            itemsPerPageList: [10, 30, 50],
+            visible: true
           };
         }
       }
       else {
         options.pagination = {
-          itemsPerPageList: [10, 30, 50]
+          itemsPerPageList: [10, 30, 50],
+          visible: true
         };
       }
+      if (typeof options.pagination.visible === 'undefined') {
+        options.pagination.visible = true;
+      }
+      else if (options.pagination.visible === false) {
+        options.pagination.itemsPerPageList[0] = 500;
+      }
+
       itemsPerPage = options.pagination.itemsPerPageList[0];
 
 //            if (!Object.is(this.tablePagination, undefined) && !Object.is(this.tablePagination.itemsPerPageList, undefined)) {
